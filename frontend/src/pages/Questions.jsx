@@ -28,7 +28,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-// TODO: Import API functions
+// Import API functions
 import { getAllQuestions, getCategories, searchQuestions } from '../api/questionApi';
 import QuestionCard from '../components/QuestionCard';
 // import Loading from '../components/Loading';
@@ -78,6 +78,7 @@ const Questions = () => {
     difficulty: '',
     sort: 'latest',
   });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState({
     companies: [],
@@ -86,57 +87,40 @@ const Questions = () => {
   });
 
 
-  // Fetch questions on mount and when filters change
+  // TODO: Fetch questions on mount and when filters change
   useEffect(() => {
-    // Only fetch if not searching
-    if (!searchQuery) {
-      fetchQuestions();
-    }
-  }, [fetchQuestions, searchQuery]);
 
-  // Debounced search effect
-  useEffect(() => {
-    if (!searchQuery) {
-      fetchQuestions();
-      return;
-    }
-    setLoading(true);
-    const handler = setTimeout(() => {
-      handleSearch();
-    }, 500); // 500ms debounce
-    return () => clearTimeout(handler);
-    // eslint-disable-next-line
-  }, [searchQuery]);
+    const fetchQuestions = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const queryParams = {};
+        if (filters.company) queryParams.company = filters.company;
+        if (filters.topic) queryParams.topic = filters.topic;
+        if (filters.role) queryParams.role = filters.role;
+        if (filters.difficulty) queryParams.difficulty = filters.difficulty;
+        if (filters.sort) queryParams.sort = filters.sort;
 
-  // Fetch questions function
-  const fetchQuestions = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      // Using mock data since backend is not ready
-      const response = await getAllQuestions(filters);
-      setQuestions(response.questions || []);
-    } catch (err) {
-      setError('Failed to load questions. Please try again later.');
-      console.error('Error fetching questions:', err);
-    } finally {
-      setLoading(false);
+        const questionData = await getAllQuestions(queryParams);
+
+        setQuestions(questionData.questions || questionData || [])
+      }
+      catch (err) {
+        setError('Failed to load questions. Please try again later.');
+        console.error('Error fetching questions:', err);
+      }
+      finally {
+        setLoading(false);
+      }
     }
+
+    fetchQuestions();
   }, [filters]);
 
-  // Search handler
-  const handleSearch = async () => {
-    setError('');
-    try {
-      const response = await searchQuestions(searchQuery);
-      setQuestions(response.questions || []);
-    } catch (err) {
-      setError('Failed to search questions.');
-      setQuestions([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Fetch questions on mount and when filters change
+  useEffect(() => {
+    fetchQuestions();
+  }, [fetchQuestions]);
 
   //Fetch categories function for filters
   const fetchCategories = async () => {
@@ -160,7 +144,36 @@ const Questions = () => {
     }
   }
 
-  // TODO: Fetch categories for filters
+  // Handle search functionality
+  const handleSearch = useCallback(async () => {
+    if (searchQuery.trim()) {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await searchQuestions(searchQuery);
+        setQuestions(response.questions || []);
+      } catch (err) {
+        setError('Failed to search questions. Please try again later.');
+        console.error('Error searching questions:', err);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // If search is empty, fetch all questions with current filters
+      fetchQuestions();
+    }
+  }, [searchQuery, fetchQuestions]);
+
+  // Debounce search queries
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      handleSearch();
+    }, 500); // Wait 500ms after user stops typing
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchQuery, handleSearch]);
+
+  // Fetch categories for filters
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -216,6 +229,19 @@ const Questions = () => {
 
         <select
           className="px-4 py-2 border rounded-lg"
+          value={filters.role}
+          onChange={(e) => setFilters({ ...filters, role: e.target.value })}
+        >
+          <option value="">All Roles</option>
+          {categories.roles.map((role) => (
+            <option key={role} value={role}>
+              {role}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="px-4 py-2 border rounded-lg"
           value={filters.difficulty}
           onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}
         >
@@ -236,7 +262,6 @@ const Questions = () => {
         </select>
       </div>
 
-      {/* Error Display */}
       {error && (
         <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
           {error}
@@ -260,8 +285,8 @@ const Questions = () => {
               key={question._id}
               question={question}
               onUpvote={(questionId) => {
-                console.log('Upvote question:', questionId);
                 // TODO: Implement upvote functionality
+                console.log('Upvote question:', questionId);
               }}
               showActions={true}
             />

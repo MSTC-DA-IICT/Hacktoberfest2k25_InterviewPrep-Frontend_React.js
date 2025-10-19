@@ -65,7 +65,9 @@ const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
 
   // TODO: Implement mobile menu toggle
- 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen((previousIsOpen) => !previousIsOpen);
+  };
 
   // TODO: Implement logout handler
   const handleLogout = () => {
@@ -132,17 +134,102 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          {/* <button className="md:hidden text-gray-700" onClick={toggleMobileMenu}> */}
-            {/* TODO: Add hamburger icon or use SVG */}
-            {/* <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <button
+            type="button"
+            className="md:hidden text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded"
+            onClick={toggleMobileMenu}
+            aria-controls="mobile-menu"
+            aria-expanded={mobileMenuOpen}
+          >
+            {/* Hamburger icon */}
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-          </button> */}
+          </button>
         </div>
 
         {/* Mobile Menu */}
-        {/* TODO: Implement mobile menu with animation */}
-        
+        <div
+          id="mobile-menu"
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${
+            mobileMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="py-3 space-y-2">
+            <Link
+              to="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-2 py-2 rounded hover:bg-gray-50 text-gray-700"
+            >
+              Home
+            </Link>
+            <Link
+              to="/questions"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-2 py-2 rounded hover:bg-gray-50 text-gray-700"
+            >
+              Questions
+            </Link>
+
+            {isAuthenticated && (
+              <>
+                <Link
+                  to="/submit"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-2 py-2 rounded hover:bg-gray-50 text-gray-700"
+                >
+                  Submit Question
+                </Link>
+                {user?.role === 'admin' && (
+                  <Link
+                    to="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block px-2 py-2 rounded hover:bg-gray-50 text-gray-700"
+                  >
+                    Admin
+                  </Link>
+                )}
+              </>
+            )}
+
+            <div className="pt-2 border-t border-gray-100" />
+
+            {isAuthenticated ? (
+              <div className="space-y-2">
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-2 py-2 rounded hover:bg-gray-50 text-gray-700"
+                >
+                  {user?.name || 'Profile'}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-2 py-2 rounded hover:bg-gray-50 text-gray-700"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-2 py-2 rounded hover:bg-gray-50 text-gray-700"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block px-2 py-2 rounded btn-primary text-center"
+                >
+                  Register
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </nav>
   );

@@ -73,9 +73,13 @@ const QuestionCard = ({ question, onUpvote, showActions = true }) => {
     return colors[difficulty] || 'bg-gray-100 text-gray-800';
   };
 
-  // TODO: Implement upvote handler
+  // Implement upvote handler
   const handleUpvote = (e) => {
-    
+    e.preventDefault(); // Prevent navigation when clicking upvote
+    e.stopPropagation(); // Prevent event bubbling
+    if (onUpvote) {
+      onUpvote(question._id);
+    }
   };
 
   // TODO: Format relative time (e.g., "2 days ago")
@@ -99,8 +103,10 @@ const QuestionCard = ({ question, onUpvote, showActions = true }) => {
               onClick={handleUpvote}
               className="flex items-center space-x-1 text-gray-600 hover:text-red-500 transition"
             >
-              {/* TODO: Add heart or arrow icon */}
-              
+              {/* Heart icon */}
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              </svg>
               <span className="text-sm font-semibold">{question.upvotes || 0}</span>
             </button>
           )}

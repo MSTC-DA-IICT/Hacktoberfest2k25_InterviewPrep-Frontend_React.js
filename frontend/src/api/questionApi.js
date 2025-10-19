@@ -25,6 +25,7 @@
  */
 
 import api from './axios';
+import { mockGetAllQuestions, mockGetCategories, mockSearchQuestions } from './mockData';
 
 /**
  * TODO: IMPLEMENT GET ALL QUESTIONS
@@ -59,34 +60,23 @@ import api from './axios';
  */
 
 export const getAllQuestions = async (filters = {}) => {
-  // Simulate API call with mock data
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      let questions = [...MOCK_QUESTIONS];
-      
-      // Apply sorting
-      if (filters.sort === 'oldest') {
-        questions.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-      } else if (filters.sort === 'upvotes') {
-        questions.sort((a, b) => b.upvotes - a.upvotes);
-      } else { // latest (default)
-        questions.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  try {
+    const params = new URLSearchParams();
+    
+    // Add all filter parameters to the URL
+    Object.keys(filters).forEach(key => {
+      if (filters[key]) {
+        params.append(key, filters[key]);
       }
-      
-      // Apply filters
-      if (filters.company) {
-        questions = questions.filter(q => q.company === filters.company);
-      }
-      if (filters.topic) {
-        questions = questions.filter(q => q.topic === filters.topic);
-      }
-      if (filters.difficulty) {
-        questions = questions.filter(q => q.difficulty === filters.difficulty);
-      }
-      
-      resolve({ questions });
-    }, 300);
-  });
+    });
+    
+    const response = await api.get(`/questions?${params.toString()}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching questions from API, falling back to mock data:', error);
+    // Fall back to mock data when backend is not available
+    return mockGetAllQuestions(filters);
+  }
 };
 
 /**
@@ -227,17 +217,14 @@ const MOCK_QUESTIONS = [
 ];
 
 export const searchQuestions = async (keyword) => {
-  // Simulate API search
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const filtered = MOCK_QUESTIONS.filter(q =>
-        q.questionText.toLowerCase().includes(keyword.toLowerCase()) ||
-        q.company.toLowerCase().includes(keyword.toLowerCase()) ||
-        q.topic.toLowerCase().includes(keyword.toLowerCase())
-      );
-      resolve({ questions: filtered });
-    }, 400);
-  });
+  try {
+    const response = await api.get(`/questions/search?q=${encodeURIComponent(keyword)}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error searching questions from API, falling back to mock data:', error);
+    // Fall back to mock data when backend is not available
+    return mockSearchQuestions(keyword);
+  }
 };
 
 /**
@@ -255,14 +242,12 @@ export const searchQuestions = async (keyword) => {
  */
 
 export const getCategories = async () => {
-  // Simulate API call with mock data
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        companies: ['Facebook', 'Google', 'Amazon', 'Microsoft', 'Apple'],
-        topics: ['Frontend', 'Backend', 'Database', 'DevOps', 'System Design'],
-        roles: ['Developer', 'Engineer', 'Backend Developer', 'Frontend Developer', 'Full Stack']
-      });
-    }, 200);
-  });
+  try {
+    const response = await api.get('/categories');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching categories from API, falling back to mock data:', error);
+    // Fall back to mock data when backend is not available
+    return mockGetCategories();
+  }
 };
