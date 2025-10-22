@@ -79,7 +79,41 @@ const AddQuestion = () => {
 
   // TODO: Implement form validation
   const validateForm = () => {
-    
+    const newErrors = {};
+
+    // Trim whitespace and validate questionText
+    const trimmedQuestionText = formData.questionText.trim();
+    if (!trimmedQuestionText) {
+      newErrors.questionText = 'Question is required';
+    } else if (trimmedQuestionText.length < 10) {
+      newErrors.questionText = 'Question must be at least 10 characters long';
+    }
+
+    // Validate company
+    const trimmedCompany = formData.company.trim();
+    if (!trimmedCompany) {
+      newErrors.company = 'Company is required';
+    }
+
+    // Validate topic
+    const trimmedTopic = formData.topic.trim();
+    if (!trimmedTopic) {
+      newErrors.topic = 'Topic is required';
+    }
+
+    // Validate role
+    const trimmedRole = formData.role.trim();
+    if (!trimmedRole) {
+      newErrors.role = 'Job role is required';
+    }
+
+    // Validate difficulty
+    if (!formData.difficulty) {
+      newErrors.difficulty = 'Difficulty level is required';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   // TODO: Implement handleSubmit
@@ -95,8 +129,6 @@ const AddQuestion = () => {
 
     // TODO: Call createQuestion API
     try {
-     
-
       // Placeholder
       toast.error('API not implemented yet');
     } catch (error) {
