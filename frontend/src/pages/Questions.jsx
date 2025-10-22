@@ -107,26 +107,26 @@ const Questions = () => {
         if (filters.difficulty) queryParams.difficulty = filters.difficulty;
         if (filters.sort) queryParams.sort = filters.sort;
 
-        const questionData = await getAllQuestions(queryParams);
+      const questionData = await getAllQuestions(queryParams);
 
-        setQuestions(questionData.questions || questionData || [])
-      }
-      catch (err) {
-        setError('Failed to load questions. Please try again later.');
-        console.error('Error fetching questions:', err);
-      }
-      finally {
-        setLoading(false);
-      }
+      setQuestions(questionData.questions || questionData || [])
     }
-
-    fetchQuestions();
+    catch (err) {
+      setError('Failed to load questions. Please try again later.');
+      console.error('Error fetching questions:', err);
+    }
+    finally {
+      setLoading(false);
+    }
   }, [filters]);
 
   // Fetch questions on mount and when filters change
   useEffect(() => {
-    fetchQuestions();
-  }, [fetchQuestions]);
+    // Only fetch if not searching
+    if (!searchQuery) {
+      fetchQuestions();
+    }
+  }, [fetchQuestions, searchQuery]);
 
   //Fetch categories function for filters
   const fetchCategories = async () => {
@@ -268,7 +268,6 @@ const Questions = () => {
         </select>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
           {error}

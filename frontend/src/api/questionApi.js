@@ -181,6 +181,41 @@ export const getQuestionUpvotes = async (id) => {
  * Searches in questionText, company, and topic fields
  */
 
+
+// Mock data for demo purposes
+const MOCK_QUESTIONS = [
+  {
+    _id: '1',
+    questionText: 'What is React?',
+    company: 'Facebook',
+    topic: 'Frontend',
+    role: 'Developer',
+    difficulty: 'Easy',
+    upvotes: 10,
+    createdAt: '2025-10-01T12:00:00Z',
+  },
+  {
+    _id: '2',
+    questionText: 'Explain useEffect hook.',
+    company: 'Google',
+    topic: 'Frontend',
+    role: 'Engineer',
+    difficulty: 'Medium',
+    upvotes: 7,
+    createdAt: '2025-09-28T12:00:00Z',
+  },
+  {
+    _id: '3',
+    questionText: 'How does Node.js handle async?',
+    company: 'Amazon',
+    topic: 'Backend',
+    role: 'Backend Developer',
+    difficulty: 'Hard',
+    upvotes: 15,
+    createdAt: '2025-09-20T12:00:00Z',
+  },
+];
+
 export const searchQuestions = async (keyword) => {
   try {
     const response = await api.get(`/questions/search?q=${encodeURIComponent(keyword)}`);
