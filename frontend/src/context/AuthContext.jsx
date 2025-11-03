@@ -128,7 +128,26 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
 
-  // TODO: Implement login function
+  const login = async (credentials) => {
+    setLoading(true);
+    try {
+      const response = await loginApi(credentials);
+      const { token, user } = response;
+      localStorage.setItem('token', token);
+      setToken(token);
+      setUser(user);
+      toast.success('Login successful!');
+      return response;
+    } 
+    catch (error) {
+      const message = error.response?.data?.message || 'Login failed. Please try again.';
+      toast.error(message);
+      throw error;
+    } 
+    finally {
+      setLoading(false);
+    }
+  };
 
   const register = async (userData) => {
     try {
@@ -165,7 +184,7 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     isAuthenticated: !!user,
-    login: () => console.log('Login not implemented'),
+    login,
     register,
     logout: () => {
       setUser(null);
